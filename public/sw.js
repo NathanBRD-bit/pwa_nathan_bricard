@@ -18,7 +18,7 @@ self.addEventListener('activate', event => {
                 }
             })
         )).then(() => {
-            console.log('V2 now ready!');
+            console.log('V3 now ready!');
         })
     );
 });
