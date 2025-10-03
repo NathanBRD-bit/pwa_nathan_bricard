@@ -13,6 +13,7 @@ export default function Header() {
                     <Link href="/reception" className="hover:text-gray-200 transition-colors">Connection</Link>
                     <Link href="/room" className="hover:text-gray-200 transition-colors">Chat</Link>
                     <Link href="/galleries" className="hover:text-gray-200 transition-colors">Galleries photo</Link>
+                    <Link href="/camera" className="hover:text-gray-200 transition-colors">Camera</Link>
                 </div>
 
             </nav>
