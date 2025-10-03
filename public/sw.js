@@ -1,9 +1,9 @@
-const CACHE_NAME = "pwa-nb-cache-v3";
+const CACHE_NAME = "pwa-nb-cache-v4";
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(["/", "/reception", "/camera", "/galleries", "room", "/favicon.ico", "/manifest.ts"]);
+            return cache.addAll(["/", "/reception", "/camera", "/galleries", "/room", "/favicon.ico", "/manifest.ts"]);
         })
     );
 });
@@ -18,7 +18,7 @@ self.addEventListener('activate', event => {
                 }
             })
         )).then(() => {
-            console.log('V3 now ready!');
+            console.log('V4 now ready!');
         })
     );
 });
