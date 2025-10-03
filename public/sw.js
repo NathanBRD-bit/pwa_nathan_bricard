@@ -3,7 +3,7 @@ const CACHE_NAME = "pwa-nb-cache-v2";
 self.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(["/"]);
+            return cache.addAll(["/", "/reception", "/camera", "/galleries", "room", "/favicon.ico", "/manifest.ts"]);
         })
     );
 });
