@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {socket} from "@/socket";
 
 export default function RoomList() {
-    const [data, setData] = useState(null);
+    const [dataRooms, setDataRooms] = useState(null);
     const [pseudo, setPseudo] = useState("");
     const [isConnectedSocket, setIsConnectedSocket] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
@@ -39,8 +39,8 @@ export default function RoomList() {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
-                const json = await roomsApi.json();
-                setData(json);
+                const json:never = await roomsApi.json();
+                setDataRooms(json);
                 console.log(json);
             } catch (error) {
                 console.error("Erreur :", error);
@@ -87,16 +87,18 @@ export default function RoomList() {
                     {pseudo !== '' && <b>Bonjour {pseudo}.</b>}
                     <h2 className="text-lg font-medium mb-4">Liste des rooms :</h2>
 
-                    {data?.data ? (
+                    {!dataRooms?.data ? (
+                        <p className="text-sm text-gray-500">Chargement des rooms...</p>
+                    ) : (
                         <div className="space-y-4">
-                            {Object.entries(data.data).map(([roomName, roomInfo]) => (
+                            {Object.entries(dataRooms.data).map(([roomName, roomInfo]) => (
                                 <div key={roomName} className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-base font-semibold text-gray-800">
                                             Room : {roomName}
                                         </h3>
                                         <button
-                                            onClick={() => joinRoom(roomName)}
+                                            onClick={() => joinRoom(roomName, pseudo)}
                                             className="px-3 py-1 text-sm bg-green-500 text-white rounded"
                                         >
                                             Rejoindre
@@ -126,8 +128,6 @@ export default function RoomList() {
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <p className="text-sm text-gray-500">Chargement des rooms...</p>
                     )}
                 </>
             )}
