@@ -33,7 +33,7 @@ export default function Reception() {
     return (
         <div className="p-6">
             <h1 className="text-xl font-bold mb-4">
-                {isConnected ? "Connecté" : "Déconnecté"}
+                {isConnected ? "Connecté au socket" : "Déconnecté"}
             </h1>
             <CameraComponent/>
             <RoomList/>

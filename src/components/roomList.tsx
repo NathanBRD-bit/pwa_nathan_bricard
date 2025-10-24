@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import {socket} from "@/socket";
+import type { RoomsResponse } from "@/types/rooms";
+
 
 export default function RoomList() {
-    const [dataRooms, setDataRooms] = useState(null);
     const [pseudo, setPseudo] = useState("");
     const [isConnectedSocket, setIsConnectedSocket] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
+    const [dataRooms, setDataRooms] = useState<RoomsResponse | null>(null);
+
 
     useEffect(() => {
         if (socket.connected) {
@@ -39,7 +42,7 @@ export default function RoomList() {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
-                const json:never = await roomsApi.json();
+                const json: RoomsResponse = await roomsApi.json();
                 setDataRooms(json);
                 console.log(json);
             } catch (error) {
