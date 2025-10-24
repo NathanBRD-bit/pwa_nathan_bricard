@@ -70,7 +70,7 @@ export default function RoomList() {
         <div className="p-6">
             {!isConnected ? (
                 <div className="space-y-4">
-                    <h2 className="text-lg font-medium">Connexionerf</h2>
+                    <h2 className="text-lg font-medium">Connexionerfrferferfef</h2>
                     <input
                         type="text"
                         placeholder="Votre pseudo"
