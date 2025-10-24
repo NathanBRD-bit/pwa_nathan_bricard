@@ -22,12 +22,13 @@ jobs:
         
       - name: Deploy files on server, install and build
         run: |
-            rsync -avz --delete ./ root@185.98.139.228:/var/www/pwa_nathan_bricard
             ssh root@185.98.139.228 << 'EOF'
-              cd /var/www/pwa_nathan_bricard
-              npm install
-              npm run build
-              pm2 restart pwa_nathan_bricard || pm2 start npm --name "pwa_nathan_bricard" -- start
+            cd /var/www/pwa_nathan_bricard
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart pwa_nathan_bricard || pm2 start npm --name "pwa_nathan_bricard" -- start
             EOF
+
 
 
