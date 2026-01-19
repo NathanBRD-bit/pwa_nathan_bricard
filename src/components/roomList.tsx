@@ -7,13 +7,28 @@ import type { RoomsResponse, MessageReceived } from "@/types/rooms";
 
 
 export default function RoomList() {
-    // Initialize from localStorage but normalize types for state safety
-    const [pseudo, setPseudo] = useState<string>(localStorage.getItem("pseudo") || "");
-    const [isConnected, setIsConnected] = useState<boolean>(localStorage.getItem("connected") === "true");
+    // Important: ne pas lire localStorage pendant le rendu SSR
+    // -> on initialise des valeurs sûres, puis on hydrate côté client dans un useEffect
+    const [pseudo, setPseudo] = useState<string>("");
+    const [isConnected, setIsConnected] = useState<boolean>(false);
     const [dataRooms, setDataRooms] = useState<RoomsResponse | null>(null);
     const [currentRoom, setCurrentRoom] = useState<string | null>(null);
     const [messages, setMessages] = useState<MessageReceived[]>([]);
     const [input, setInput] = useState("");
+
+    // Hydrate l'état depuis localStorage uniquement côté client
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            const storedPseudo = window.localStorage.getItem("pseudo") || "";
+            const storedConnected = window.localStorage.getItem("connected") === "true";
+            setPseudo(storedPseudo);
+            setIsConnected(storedConnected);
+        } catch (e) {
+            // En cas de restriction d'accès au storage, on reste sur les valeurs par défaut
+            console.warn("Impossible de lire localStorage:", e);
+        }
+    }, []);
 
     useEffect(() => {
         if (!isConnected) return;
