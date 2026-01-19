@@ -17,3 +17,18 @@ export interface RoomsResponse {
     metadata: { time: string };
     data: RoomsData;
 }
+
+export interface MessageSend {
+    content: string;
+    dateEmis?: Date;
+    roomName: string;
+}
+
+export interface MessageReceived {
+    content: string;
+    dateEmis?: Date;
+    roomName: string;
+    pseudo: string;
+    serverId: string;
+    categorie: string;
+}

@@ -30,6 +30,46 @@ export default function CameraCapture() {
         };
     }, [isCameraOn]);
 
+    async function notifyPhotoTaken(previewUrl?: string) {
+        try {
+            if (typeof window === "undefined") return;
+            // Vérifie le support des notifications
+            const supportsNotification = "Notification" in window;
+            const supportsSW = "serviceWorker" in navigator;
+
+            if (!supportsNotification) return;
+
+            // Demande la permission si nécessaire
+            let permission = Notification.permission;
+            if (permission === "default") {
+                permission = await Notification.requestPermission();
+            }
+            if (permission !== "granted") return;
+
+            const options: NotificationOptions = {
+                body: "Votre photo a été sauvegardée. Cliquez pour ouvrir la galerie.",
+                icon: "/favicon.ico",
+                badge: "/favicon.ico",
+                tag: "photo-taken",
+                renotify: true,
+                data: { url: "/galleries" },
+                // L'image d'aperçu peut ne pas être supportée partout
+                image: previewUrl,
+                vibrate: [100, 50, 100],
+            };
+
+            if (supportsSW) {
+                const reg = await navigator.serviceWorker.ready;
+                await reg.showNotification("Photo enregistrée", options);
+            } else {
+                // Fallback direct si pas de SW
+                new Notification("Photo enregistrée", options);
+            }
+        } catch (e) {
+            console.warn("Notification non envoyée:", e);
+        }
+    }
+
     const takePicture = () => {
         if (!videoRef.current) return;
         const canvas = document.createElement("canvas");
@@ -47,6 +87,9 @@ export default function CameraCapture() {
         savedPhotos.push(imageDataUrl);
         localStorage.setItem("photos", JSON.stringify(savedPhotos));
         localStorage.setItem("lastPhoto", JSON.stringify(imageDataUrl));
+
+        // Notification PWA (si supportée)
+        notifyPhotoTaken(imageDataUrl);
     };
 
     return (

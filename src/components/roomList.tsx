@@ -1,38 +1,20 @@
 'use client';
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import {socket} from "@/socket";
-import type { RoomsResponse } from "@/types/rooms";
+import { socket } from "@/socket";
+import type { RoomsResponse, MessageReceived } from "@/types/rooms";
 
 
 export default function RoomList() {
-    const [pseudo, setPseudo] = useState("");
-    const [isConnectedSocket, setIsConnectedSocket] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
+    // Initialize from localStorage but normalize types for state safety
+    const [pseudo, setPseudo] = useState<string>(localStorage.getItem("pseudo") || "");
+    const [isConnected, setIsConnected] = useState<boolean>(localStorage.getItem("connected") === "true");
     const [dataRooms, setDataRooms] = useState<RoomsResponse | null>(null);
+    const [currentRoom, setCurrentRoom] = useState<string | null>(null);
+    const [messages, setMessages] = useState<MessageReceived[]>([]);
+    const [input, setInput] = useState("");
 
-
-    useEffect(() => {
-        if (socket.connected) {
-            onConnect();
-        }
-
-        async function onConnect() {
-            setIsConnectedSocket(true);
-        }
-
-        function onDisconnect() {
-            setIsConnectedSocket(false);
-        }
-
-        socket.on("connect", onConnect);
-        socket.on("disconnect", onDisconnect);
-
-        return () => {
-            socket.off("connect", onConnect);
-            socket.off("disconnect", onDisconnect);
-        };
-    }, []);
     useEffect(() => {
         if (!isConnected) return;
 
@@ -54,17 +36,49 @@ export default function RoomList() {
     }, [isConnected]);
 
     function handleConnect() {
-        if (!pseudo.trim()) return;
-        localStorage.setItem("pseudo", pseudo.trim());
+        const cleaned = (pseudo || "").trim();
+        if (cleaned.length === 0) return;
+        localStorage.setItem("pseudo", cleaned);
+        localStorage.setItem("connected", "true");
+        setPseudo(cleaned);
         setIsConnected(true);
     }
 
-    function joinRoom(roomName: string, pseudo: string) {
-        socket.emit("chat-join-room", {
-            pseudo,
-            roomName,
-        });
+    function handleDisconnect() {
+        localStorage.setItem("pseudo", "");
+        localStorage.setItem("connected", "false");
+        setIsConnected(false);
+        setPseudo("");
     }
+
+    // Écoute des messages et des événements
+    useEffect(() => {
+        const onJoined = ({ clients, roomName }: { clients: unknown; roomName: string }) => {
+            console.log(`Vous avez rejoint ${roomName}`, clients);
+            setCurrentRoom(roomName);
+            setMessages([]);
+        };
+
+        const onMsg = (msg: MessageReceived) => {
+            console.log(msg);
+            msg.dateEmis = new Date(msg.dateEmis || Date.now());
+            setMessages((prev) => [...prev, msg]);
+        };
+
+        const onDisconnected = ({ pseudo, roomName }: { pseudo: string; roomName: string }) => {
+            console.log(`${pseudo} a quitté la room ${roomName}`);
+        };
+
+        socket.on("chat-joined-room", onJoined);
+        socket.on("chat-msg", onMsg);
+        socket.on("chat-disconnected", onDisconnected);
+
+        return () => {
+            socket.off("chat-joined-room", onJoined);
+            socket.off("chat-msg", onMsg);
+            socket.off("chat-disconnected", onDisconnected);
+        };
+    }, []);
 
     return (
         <div className="p-6">
@@ -89,7 +103,12 @@ export default function RoomList() {
                 <>
                     {pseudo !== '' && <b>Bonjour {pseudo}.</b>}
                     <h2 className="text-lg font-medium mb-4">Liste des rooms :</h2>
-
+                    <button
+                        onClick={handleDisconnect}
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        Déconnexion
+                    </button>
                     {!dataRooms?.data ? (
                         <p className="text-sm text-gray-500">Chargement des rooms...</p>
                     ) : (
@@ -100,15 +119,14 @@ export default function RoomList() {
                                         <h3 className="text-base font-semibold text-gray-800">
                                             Room : {roomName}
                                         </h3>
-                                        <button
-                                            onClick={() => joinRoom(roomName, pseudo)}
-                                            className="px-3 py-1 text-sm bg-green-500 text-white rounded"
-                                        >
-                                            Rejoindre
-                                        </button>
+                                        <Link href={`/room/${roomName}`}>
+                                            <button className="px-3 py-1 text-sm bg-green-500 text-white rounded">
+                                                Rejoindre
+                                            </button>
+                                        </Link>
                                     </div>
 
-                                    {roomInfo?.clients ? (
+                                    {roomInfo?.clients && Object.keys(roomInfo.clients).length > 0 ? (
                                         <ul className="pl-4 space-y-1 text-sm text-gray-700">
                                             {Object.values(roomInfo.clients).map((client, index) => {
                                                 const displayPseudo = typeof client.pseudo === "string"
