@@ -51,11 +51,7 @@ export default function CameraCapture() {
                 icon: "/favicon.ico",
                 badge: "/favicon.ico",
                 tag: "photo-taken",
-                renotify: true,
                 data: { url: "/galleries" },
-                // L'image d'aperçu peut ne pas être supportée partout
-                image: previewUrl,
-                vibrate: [100, 50, 100],
             };
 
             if (supportsSW) {
