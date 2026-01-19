@@ -1,5 +1,5 @@
 // Bump le nom du cache pour invalider les anciennes versions
-const CACHE_NAME = "pwa-nb-cache-v5";
+const CACHE_NAME = "pwa-nb-cache-v6";
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
@@ -74,6 +74,7 @@ self.addEventListener("fetch", (event) => {
         return cached || fetchPromise || new Response(null, { status: 504, statusText: 'Gateway Timeout' });
     })());
 });
+
 
 // Gestion du clic sur notification PWA
 self.addEventListener('notificationclick', (event) => {

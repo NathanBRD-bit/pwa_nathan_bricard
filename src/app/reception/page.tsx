@@ -8,11 +8,6 @@ import { socket } from "@/socket";
 export default function Reception() {
     const [isConnected, setIsConnected] = useState(false);
 
-    useEffect(() => {
-        if (socket.connected) {
-            onConnect();
-        }
-
         async function onConnect() {
             setIsConnected(true);
         }
@@ -23,6 +18,11 @@ export default function Reception() {
 
         socket.on("connect", onConnect);
         socket.on("disconnect", onDisconnect);
+
+    useEffect(() => {
+        if (socket.connected) {
+            onConnect();
+        }
 
         return () => {
             socket.off("connect", onConnect);

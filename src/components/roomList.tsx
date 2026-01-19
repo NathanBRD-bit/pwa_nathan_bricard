@@ -91,7 +91,7 @@ export default function RoomList() {
         return () => {
             socket.off("chat-joined-room", onJoined);
             socket.off("chat-msg", onMsg);
-            socket.off("chat-disconnected", onDisconnected);
+            socket.on("chat-disconnected", onDisconnected);
         };
     }, []);
 
