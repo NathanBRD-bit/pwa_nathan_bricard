@@ -5,7 +5,10 @@ import ChatRoom from "@/components/ChatRoom";
 import {useEffect} from "react";
 
 export default function ChatRoomPage() {
-    const { roomName } = useParams(); // récupère le paramètre d'URL
+    let { roomName } = useParams(); // récupère le paramètre d'URL
+    if (typeof roomName === "string") {
+        roomName = roomName.replace("%20", " ");
+    }
     const pseudo = window.localStorage.getItem("pseudo") || "";
 
     useEffect(() => {

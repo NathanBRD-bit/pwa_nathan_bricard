@@ -10,19 +10,12 @@ export default function Home() {
         'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error' | 'offline'
     >('idle');
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [vibrateAvailable, setVibrateAvailable] = useState<boolean>(false);
+    const vibrateAvailable = navigator.vibrate(1000);
     const vibrateSOS = () => {
-        if (!vibrateAvailable) return;
         navigator.vibrate([
             100, 30, 100, 30, 100, 30, 200, 30, 200, 30, 200, 30, 100, 30, 100, 30, 100,
         ]);
-    };
-
-    // Détection du support des vibrations
-    useEffect(() => {
-        const hasVibrate = navigator.vibrate(100);
-        setVibrateAvailable(hasVibrate);
-    }, []);
+    }
 
     // Fonction utilitaire pour demander la position
     const requestPosition = () => {
@@ -94,10 +87,8 @@ export default function Home() {
         <div className="p-6">
             <button
                 onClick={vibrateSOS}
-                disabled={!vibrateAvailable}
-                aria-disabled={!vibrateAvailable}
-                className={`mt-2 px-3 py-1.5 rounded transition text-white 
-                    ${vibrateAvailable ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                disabled={true}
+                className="mt-2 bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition"
             >
                 S.O.S en vibration
             </button>

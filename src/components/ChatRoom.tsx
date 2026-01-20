@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { socket } from "@/socket";
 import { MessageReceived } from "@/types/rooms";
+
+import { io } from "socket.io-client";
+
+const socket = io("https://api.tools.gavago.fr/", {
+    transports: ["websocket"],
+});
 
 interface ChatRoomProps {
     roomName: string;

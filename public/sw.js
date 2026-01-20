@@ -1,5 +1,5 @@
 // Bump le nom du cache pour invalider les anciennes versions
-const CACHE_NAME = "pwa-nb-cache-v6";
+const CACHE_NAME = "pwa-nb-cache-v8";
 
 self.addEventListener("install", (event) => {
     event.waitUntil(

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { socket } from "@/socket";
 import type { RoomsResponse, MessageReceived } from "@/types/rooms";
 
 
@@ -82,16 +81,6 @@ export default function RoomList() {
 
         const onDisconnected = ({ pseudo, roomName }: { pseudo: string; roomName: string }) => {
             console.log(`${pseudo} a quitté la room ${roomName}`);
-        };
-
-        socket.on("chat-joined-room", onJoined);
-        socket.on("chat-msg", onMsg);
-        socket.on("chat-disconnected", onDisconnected);
-
-        return () => {
-            socket.off("chat-joined-room", onJoined);
-            socket.off("chat-msg", onMsg);
-            socket.on("chat-disconnected", onDisconnected);
         };
     }, []);
 
