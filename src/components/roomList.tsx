@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { RoomsResponse, MessageReceived } from "@/types/rooms";
+import type { RoomsResponse } from "@/types/rooms";
 
 
 export default function RoomList() {
     // Important: ne pas lire localStorage pendant le rendu SSR
     // -> on initialise des valeurs sûres, puis on hydrate côté client dans un useEffect
     const [pseudo, setPseudo] = useState<string>("");
+    const [roomName, setRoomName] = useState<string>("");
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [dataRooms, setDataRooms] = useState<RoomsResponse | null>(null);
-    const [currentRoom, setCurrentRoom] = useState<string | null>(null);
-    const [messages, setMessages] = useState<MessageReceived[]>([]);
-    const [input, setInput] = useState("");
 
     // Hydrate l'état depuis localStorage uniquement côté client
     useEffect(() => {
@@ -65,24 +63,7 @@ export default function RoomList() {
         setPseudo("");
     }
 
-    // Écoute des messages et des événements
-    useEffect(() => {
-        const onJoined = ({ clients, roomName }: { clients: unknown; roomName: string }) => {
-            console.log(`Vous avez rejoint ${roomName}`, clients);
-            setCurrentRoom(roomName);
-            setMessages([]);
-        };
-
-        const onMsg = (msg: MessageReceived) => {
-            console.log(msg);
-            msg.dateEmis = new Date(msg.dateEmis || Date.now());
-            setMessages((prev) => [...prev, msg]);
-        };
-
-        const onDisconnected = ({ pseudo, roomName }: { pseudo: string; roomName: string }) => {
-            console.log(`${pseudo} a quitté la room ${roomName}`);
-        };
-    }, []);
+    // Note: la logique d'abonnement socket pour la liste n'est pas requise ici.
 
     return (
         <div className="p-6">
@@ -106,6 +87,21 @@ export default function RoomList() {
             ) : (
                 <>
                     {pseudo !== '' && <b>Bonjour {pseudo}.</b>}
+                    <h2 className="text-lg font-medium mb-4">Créer une room :</h2>
+                    <input
+                    type="text"
+                    placeholder="Nom de la room"
+                    value={roomName}
+                    onChange={(e) => setRoomName(e.target.value)}
+                    className="border p-2 rounded w-full" />
+                    <Link href={roomName ? `/room/${roomName}` : '#'}>
+                        <button
+                            disabled={!roomName.trim()}
+                            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Créer la room
+                        </button>
+                    </Link>
                     <h2 className="text-lg font-medium mb-4">Liste des rooms :</h2>
                     <button
                         onClick={handleDisconnect}

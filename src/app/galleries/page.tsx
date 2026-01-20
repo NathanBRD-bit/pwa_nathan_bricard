@@ -1,5 +1,6 @@
 'use client';
 import {useEffect, useState} from "react";
+import Image from 'next/image';
 
 export default function Galleries() {
     const [photos, setPhotos] = useState([]);
@@ -37,10 +38,15 @@ export default function Galleries() {
                         <div
                             key={index}
                             className="overflow-hidden rounded-lg shadow-mdborder border-gray-300 hover:scale-105 hover:shadow-xl transition duration-300ease-in-out">
-                            <img
+                            <Image
                                 src={photo}
                                 alt={`Photo ${index + 1}`}
-                                className="w-full h-48 object-cover"/>
+                                width={600}
+                                height={400}
+                                className="w-full h-48 object-cover"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                                unoptimized
+                            />
                         </div>
                     ))}
                 </div>

@@ -1,12 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { MessageReceived } from "@/types/rooms";
-
-import { io } from "socket.io-client";
-
-const socket = io("https://api.tools.gavago.fr/", {
-    transports: ["websocket"],
-});
+import { socket } from "@/socket";
+import Link from "next/link";
+import CameraComponent from "@/components/cameraComponent";
+import Image from "next/image";
 
 interface ChatRoomProps {
     roomName: string;
@@ -14,11 +12,17 @@ interface ChatRoomProps {
 }
 
 export default function ChatRoom({ roomName, pseudo }: ChatRoomProps) {
+    // let firstLoad = true;
     const [messages, setMessages] = useState<{ pseudo: string; content: string }[]>([]);
     const [newMessage, setNewMessage] = useState<string>("");
 
+    // Détecte si le contenu est une image encodée en base64 via data URL
+    const isDataImage = (content: string) => content.startsWith("data:image");
+
     useEffect(() => {
-        // Rejoindre la room
+        // if (firstLoad) {
+            // Rejoindre la room
+        console.log("Rejoindre la room", roomName);
         socket.emit("chat-join-room", { pseudo, roomName });
 
         // Gestionnaire de messages dédié à ce composant
@@ -27,17 +31,12 @@ export default function ChatRoom({ roomName, pseudo }: ChatRoomProps) {
                 setMessages((prev) => [...prev, { pseudo: msg.pseudo, content: msg.content }]);
             } catch (e) {
                 // Évite de casser l'appli en cas de message malformé
-                console.warn("Message chat ignoré (mal formé):", e, msg);
+                console.log("Message chat ignoré (mal formé):", e, msg);
             }
         };
-
         socket.on("chat-msg", onChatMsg);
-
-        return () => {
-            // Ne jamais couper le socket global ici (StrictMode double-mount déclenche ce cleanup)
-            // On nettoie uniquement les écouteurs propres à ce composant
-            socket.off("chat-msg", onChatMsg);
-        };
+        //     firstLoad = false;
+        // }
     }, [pseudo, roomName]);
 
     const [isConnected, setIsConnected] = useState(false);
@@ -64,15 +63,37 @@ export default function ChatRoom({ roomName, pseudo }: ChatRoomProps) {
         };
     }, []);
 
+    const leaveRoom = () => {
+        socket.emit("disconnect")
+    };
+
     return (
-        <div className="p-6 pb-28">{/* pb pour ne pas masquer le contenu par la barre flottante */}
+        <div className="p-6 pb-28">
             <h1 className="text-xl font-bold mb-4">
                 {isConnected ? "Connecté au socket" : "Déconnecté"}
             </h1>
             <h2 className="text-xl font-bold mb-4">Salon : {roomName}</h2>
+            {/* Caméra: permettre d'envoyer une photo (base64) dans la room */}
+            <div className="mb-6">
+                <CameraComponent roomName={roomName} />
+            </div>
             <ul className="space-y-2">
                 {messages.map((m, i) => (
-                    <li key={i} className="border p-2 rounded">{m.pseudo} : {m.content}</li>
+                    <li key={i} className="border p-2 rounded">
+                        <span className="font-medium">{m.pseudo} :</span>{" "}
+                        {isDataImage(m.content) ? (
+                            <Image
+                                src={m.content}
+                                alt={`Image envoyée par ${m.pseudo}`}
+                                width={800}
+                                height={600}
+                                className="mt-2 max-w-full h-auto rounded border"
+                                unoptimized
+                            />
+                        ) : (
+                            <span>{m.content}</span>
+                        )}
+                    </li>
                 ))}
             </ul>
             {/* Barre d'envoi flottante en bas */}
@@ -93,6 +114,16 @@ export default function ChatRoom({ roomName, pseudo }: ChatRoomProps) {
                             }
                         }}
                     >
+                        <Link href='/reception'>
+                            <button
+                                type="button"
+                                onClick={leaveRoom}
+                                aria-label="Action secondaire"
+                                className="inline-flex items-center justify-center rounded border px-3 py-2 text-gray-700 bg-white hover:bg-gray-50 active:bg-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition md:px-4"
+                            >
+                                Quitter la room
+                            </button>
+                        </Link>
                         <input
                             type="text"
                             value={newMessage}

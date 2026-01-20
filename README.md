@@ -33,3 +33,25 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Docker (simple)
+
+Un Dockerfile simple est fourni à la racine, à la manière de l'exemple Symfony (installation des dépendances, build, puis démarrage).
+
+Construire l'image:
+
+```bash
+docker build -t pwa-nathan-bricard .
+```
+
+Lancer le conteneur:
+
+```bash
+docker run -p 3000:3000 pwa-nathan-bricard
+```
+
+Optionnel: passer des variables d'environnement avec un fichier `.env`:
+
+```bash
+docker run --env-file .env -p 3000:3000 pwa-nathan-bricard
+```

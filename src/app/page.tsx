@@ -10,12 +10,15 @@ export default function Home() {
         'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error' | 'offline'
     >('idle');
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const vibrateAvailable = navigator.vibrate(1000);
+    const [vibrateAvailable, setVibrateAvailable] = useState(false);
+
     const vibrateSOS = () => {
-        navigator.vibrate([
-            100, 30, 100, 30, 100, 30, 200, 30, 200, 30, 200, 30, 100, 30, 100, 30, 100,
-        ]);
-    }
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate([
+                100, 30, 100, 30, 100, 30, 200, 30, 200, 30, 200, 30, 100, 30, 100, 30, 100,
+            ]);
+        }
+    };
 
     // Fonction utilitaire pour demander la position
     const requestPosition = () => {
@@ -46,11 +49,18 @@ export default function Home() {
     };
 
     useEffect(() => {
+        if (typeof navigator === 'undefined') {
+            setStatus('unavailable');
+            return;
+        }
+
+        setVibrateAvailable('vibrate' in navigator);
+
         if (!('geolocation' in navigator)) {
             setStatus('unavailable');
             return;
         }
-        if (!navigator.onLine) {
+        if (typeof window !== 'undefined' && !navigator.onLine) {
             setStatus('offline');
             return;
         }
@@ -60,8 +70,10 @@ export default function Home() {
 
     // Abonne les listeners online/offline pour relancer la géolocalisation automatiquement
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
         const handleOnline = () => {
-            if (!('geolocation' in navigator)) {
+            if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
                 setStatus('unavailable');
                 return;
             }
@@ -87,7 +99,7 @@ export default function Home() {
         <div className="p-6">
             <button
                 onClick={vibrateSOS}
-                disabled={true}
+                disabled={!vibrateAvailable}
                 className="mt-2 bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 transition"
             >
                 S.O.S en vibration

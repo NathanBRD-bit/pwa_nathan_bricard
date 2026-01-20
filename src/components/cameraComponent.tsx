@@ -1,18 +1,29 @@
-'use client';
-import { useState, useEffect, useRef } from "react";
 
-export default function CameraCapture() {
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { socket } from "@/socket";
+import Image from "next/image";
+
+interface CameraComponentProps {
+    // Nom de la room cible. S'il est fourni, on affiche un bouton pour l'envoyer dans la room.
+    roomName?: string;
+}
+
+export default function CameraCapture({ roomName }: CameraComponentProps) {
     const [isCameraOn, setIsCameraOn] = useState(false);
     const [photo, setPhoto] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
+        const el = videoRef.current;
+        let stream: MediaStream | null = null;
+
         async function initCamera() {
             if (!isCameraOn) return;
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                if (el) {
+                    el.srcObject = stream;
                 }
             } catch (err) {
                 console.error("Erreur accès caméra:", err);
@@ -22,24 +33,21 @@ export default function CameraCapture() {
 
         initCamera();
         return () => {
-            if (videoRef.current?.srcObject) {
-                (videoRef.current.srcObject as MediaStream)
-                    .getTracks()
-                    .forEach(track => track.stop());
+            if (stream) {
+                stream.getTracks().forEach((t) => t.stop());
+            } else if (el && el.srcObject) {
+                (el.srcObject as MediaStream).getTracks().forEach((t) => t.stop());
             }
         };
     }, [isCameraOn]);
 
-    async function notifyPhotoTaken(previewUrl?: string) {
+    async function notifyPhotoTaken() {
         try {
             if (typeof window === "undefined") return;
-            // Vérifie le support des notifications
             const supportsNotification = "Notification" in window;
             const supportsSW = "serviceWorker" in navigator;
-
             if (!supportsNotification) return;
 
-            // Demande la permission si nécessaire
             let permission = Notification.permission;
             if (permission === "default") {
                 permission = await Notification.requestPermission();
@@ -58,7 +66,6 @@ export default function CameraCapture() {
                 const reg = await navigator.serviceWorker.ready;
                 await reg.showNotification("Photo enregistrée", options);
             } else {
-                // Fallback direct si pas de SW
                 new Notification("Photo enregistrée", options);
             }
         } catch (e) {
@@ -78,14 +85,27 @@ export default function CameraCapture() {
         const imageDataUrl = canvas.toDataURL("image/jpeg");
         setPhoto(imageDataUrl);
 
-        // Sauvegarde locale
+        // Sauvegarde locale simple
         const savedPhotos = JSON.parse(localStorage.getItem("photos") || "[]");
         savedPhotos.push(imageDataUrl);
         localStorage.setItem("photos", JSON.stringify(savedPhotos));
         localStorage.setItem("lastPhoto", JSON.stringify(imageDataUrl));
 
-        // Notification PWA (si supportée)
-        notifyPhotoTaken(imageDataUrl);
+        notifyPhotoTaken();
+    };
+
+    const sendPhotoToRoom = () => {
+        if (!photo) return;
+        if (!roomName) {
+            alert("Aucune room spécifiée pour l'envoi.");
+            return;
+        }
+        try {
+            // Réutilise l'event de chat standard: le backend doit relayer aux membres de la room
+            socket.emit("chat-msg", { content: photo, roomName });
+        } catch (e) {
+            console.warn("Échec d'envoi de la photo:", e);
+        }
     };
 
     return (
@@ -106,13 +126,13 @@ export default function CameraCapture() {
                         🎥 Fermer la camera
                     </button>
                     <div className="flex flex-row items-start gap-6">
-                        {/* Caméra */}
                         <div className="flex flex-col items-center">
                             <video
                                 ref={videoRef}
                                 autoPlay
                                 playsInline
-                                className="rounded-lg shadow-md w-64 h-48 border border-gray-300"/>
+                                className="rounded-lg shadow-md w-64 h-48 border border-gray-300"
+                            />
                             <button
                                 onClick={takePicture}
                                 className="mt-2 bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition"
@@ -121,21 +141,31 @@ export default function CameraCapture() {
                             </button>
                         </div>
 
-                        {/* Photo prise */}
                         {photo && (
                             <div className="flex flex-col items-center">
                                 <h3 className="text-sm font-medium mb-2">Photo prise :</h3>
-                                <img
+                                <Image
                                     src={photo}
                                     alt="Captured"
-                                    className="rounded shadow-md w-64 h-48 object-cover border border-gray-300"/>
+                                    width={256}
+                                    height={192}
+                                    className="rounded shadow-md w-64 h-48 object-cover border border-gray-300"
+                                    unoptimized
+                                />
+                                {roomName && (
+                                    <button
+                                        onClick={sendPhotoToRoom}
+                                        className="mt-2 bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 transition"
+                                        title={"Envoyer dans la room " + roomName}
+                                    >
+                                        🚀 Envoyer dans la room
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
                 </>
-    )
-}
-</div>
-)
-    ;
+            )}
+        </div>
+    );
 }
