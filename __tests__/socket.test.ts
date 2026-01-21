@@ -20,12 +20,12 @@ import { io } from "socket.io-client";
 
 describe("socket.js", () => {
   it("appelle io() avec la bonne URL et les bons transports et retourne une socket connectée", () => {
-    // Vérifie que io a bien été appelé avec l'URL et l'option transports websocket
+    // Vérifie que io a bien été appelé avec l'URL
     expect(io).toHaveBeenCalledWith("https://api.tools.gavago.fr/", {
       transports: ["websocket"],
     });
 
-    // Vérifie que notre instance mockée indique une connexion établie
+    // Vérifie que notre instance mockée renvoie une connexion établie
     expect(socket.connected).toBe(true);
   });
 });

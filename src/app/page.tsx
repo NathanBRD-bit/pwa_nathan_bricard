@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type Coords = { lat: number; lng: number } | null;
 
 export default function Home() {
+    //Coordonnées de la position actuelle si l'API de géolocolasition est disponible
     const [coords, setCoords] = useState<Coords>(null);
     const [status, setStatus] = useState<
         'idle' | 'locating' | 'success' | 'denied' | 'unavailable' | 'error' | 'offline'
@@ -12,6 +13,7 @@ export default function Home() {
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [vibrateAvailable, setVibrateAvailable] = useState(false);
 
+    // Fonction pour vibrer l'appareil en S.O.S morse si disponible
     const vibrateSOS = () => {
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
             navigator.vibrate([
@@ -20,9 +22,10 @@ export default function Home() {
         }
     };
 
-    // Fonction utilitaire pour demander la position
+    // Fonction pour demander la position si disponible
     const requestPosition = () => {
         setStatus('locating');
+        // API du navigateur (voir ressources dans le README)
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude } = pos.coords;

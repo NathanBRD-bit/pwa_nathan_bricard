@@ -1,42 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chat avec websocket en PWA
 
-## Getting Started
+Ce projet utilise NextJS 16.1 et TailwindCSS.
 
-First, run the development server:
+## Description
+
+Cette application est un **chat en PWA avec un service worker**, avec un serveur socketIO pour la communication entre les utilisateurs.
+Plusieurs autres fonctionnalités sont disponibles pour montrer ce que peut faire un PWA online et offline à l'aide des APIs du navigateur : 
+- Notification Push
+- Vibration ( si disponible sur votre appareil )
+- Géolocalisation
+- Caméra et prise de photo synchronisée hors ligne
+- Affichage batterie
+
+### Une PWA, c'est quoi ?
+
+Une PWA (Progressive Web App) est une application web **qui peut être installée
+sur votre appareil** pour donner donner à l'utilisateur une expérience plus "App" qu'un site web classique.
+
+### Un service worker, c'est quoi ?
+
+Un service worker permet d'implémenter un support en offline. Il fait effet de proxy, il intercepte les différentes
+requêtes réseau. Quand l'utilisateur est offline et qu'il fait une requête, le service worker répond avec son cache.
+Il peut aussi conserver les requêtes réseau pour les exécuter quand l'utilisateur passe à nouveau online.
+
+## Pré-requis à l'installation en local
+
+- Node.js 20.9+
+- TypeScript 5+
+- Navigateurs compatible: Chrome 111+, Edge 111+, Firefox 111+, Safari 16.4+
+- Yarn / npm / pnpm
+
+## Installation
+
+1. Créer un dossier qui accueillera le projet
+
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+mkdir pwa-project
+cd pwa-project
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Cloner le repository Git 
+```bash
+git clone https://github.com/NathanBRD-bit/pwa_nathan_bricard.git
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Builder le projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+next build
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Lancer le projet
+```bash
+npm start
+```
 
 ## Docker (simple)
 
-Un Dockerfile simple est fourni à la racine, à la manière de l'exemple Symfony (installation des dépendances, build, puis démarrage).
+Un Dockerfile simple est fourni à la racine permettant de conteneuriser l'application.
+
+### Pré-requis
+
+- Docker
+- Docker Compose
 
 Construire l'image:
 
@@ -50,8 +76,11 @@ Lancer le conteneur:
 docker run -p 3000:3000 pwa-nathan-bricard
 ```
 
-Optionnel: passer des variables d'environnement avec un fichier `.env`:
 
-```bash
-docker run --env-file .env -p 3000:3000 pwa-nathan-bricard
-```
+## Ressources pour les APIs navigateurs
+
+- [Navigateur getCurrentPosition](https://developer.mozilla.org/fr/docs/Web/API/Geolocation/getCurrentPosition)
+- [Navigateur Vibrate](https://developer.mozilla.org/fr/docs/Web/API/Navigator/vibrate)
+- [Navigateur battery](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getBattery)
+- [Service worker notification push](https://developer.mozilla.org/fr/docs/Web/API/ServiceWorkerRegistration/showNotification)
+- [Navigateur Caméra](https://developer.mozilla.org/fr/docs/Web/API/Navigator/getUserMedia)

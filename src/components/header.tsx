@@ -8,7 +8,7 @@ export default function Header() {
     const [isCharging, setIsCharging] = useState<boolean | null>(null);
     const [batterySupported, setBatterySupported] = useState<boolean>(true);
 
-    // Types minimaux pour le Battery Status API (certains navigateurs ne l'exposent plus)
+    // Types minimaux pour le Battery Status API
     type BatteryLike = {
         level: number; // 0..1
         charging: boolean;
@@ -73,7 +73,7 @@ export default function Header() {
                     <Link href="/reception" className="hover:text-gray-200 transition-colors">Reception</Link>
                     <Link href="/galleries" className="hover:text-gray-200 transition-colors">Galeries photo</Link>
                     <Link href="/camera" className="hover:text-gray-200 transition-colors">Camera</Link>
-                    {/* Indicateur batterie (si supporté) */}
+                    {/* Indicateur batterie (si supporté par le navigateur) */}
                     {batterySupported && levelBattery !== null && (
                         <span
                             title={isCharging ? "Batterie en charge" : "Batterie"}
