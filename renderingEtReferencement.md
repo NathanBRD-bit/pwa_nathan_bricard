@@ -73,7 +73,9 @@ L'ISR est un mélange de génération statique et rendu dynamique.
 
 La navigateur télécharge la page HTML avec un mimimum d'informations ainsi que le javascript
 puis le javascript va mettre à jour le DOM, c'est pour cette raison que sur certains sites il y a du changement à l'arrivée
-sur une page
+sur une page.
+
+Il affiche aussi instantanément la nouvelle version d'une page quand quelqu'un la demande.
 
 ![img.png](img.png)
 
@@ -92,3 +94,10 @@ sur une page
 - Complexité accrue
 - Expérience utilisateur compliquée, c'est pratique mais il faut maîtriser l'ISR pour que l'utilisateur ne soit pas surpris par des changements brusque
 
+
+Au niveau référencement (SEO), les trois sont très bien et tout dépends du contexte. Le plus optimisé
+reste le SSG qui envoie la page entière déjà prête contrairement au SSR qui lui la construit avant de l'envoyer ou encore l'ISR où il pourrait manquer
+des éléments de la page qui arrivent au fur et à mesure.
+
+Il vaut mieux faire du SSR ou SSG si on veut vraiment optimiser le SEO afin que les navigateurs puissent le référencer au mieux,
+mais, tout dépend du contexte de l'application, l'ISR peut être très bien aussi, cela dépend du contenu qui est ajouté dynamiquement.
